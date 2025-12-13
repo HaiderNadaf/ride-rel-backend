@@ -1,0 +1,10 @@
+{
+  "projectId": "env_mimpgt0i_791815d2661a28dd",
+  "envPath": ".env",
+  "createdAt": "2025-12-01T05:25:22.531Z",
+  "stages": {
+    "development": {
+      "envPath": ".env"
+    }
+  }
+}
