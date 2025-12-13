@@ -40,6 +40,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// HOME ROUTE
+app.get("/", (req, res) => {
+  res.send(
+    "🚗 Welcome to Ride_Resell — Your all-in-one marketplace for buying and selling cars, bikes, electric vehicles, and scooters."
+  );
+});
+
 // ROUTES
 app.use("/api/products", productRoutes);
 app.use("/api", pushRoutes);
