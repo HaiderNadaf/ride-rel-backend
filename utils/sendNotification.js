@@ -30,63 +30,30 @@
 //   }
 // }
 // services/pushNotifications.js
-import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
-import { Alert, Platform } from "react-native";
+export async function sendNotification(title, body, pushToken) {
+  if (!pushToken) return;
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+  const message = {
+    to: pushToken,
+    sound: "default",
+    title,
+    body,
+  };
 
-export async function registerForPushNotificationsAsync() {
-  let token;
-
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
+  try {
+    const response = await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(message),
     });
+
+    const data = await response.json();
+    console.log("Push sent:", data);
+  } catch (err) {
+    console.error("Push failed:", err);
   }
-
-  if (!Device.isDevice) {
-    Alert.alert("Error", "Must use physical device for Push Notifications");
-    return;
-  }
-
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-
-  if (existingStatus !== "granted") {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== "granted") {
-    Alert.alert("Permission Denied", "Push notifications will not work");
-    return;
-  }
-
-  // Get the Expo push token
-  token = (await Notifications.getExpoPushTokenAsync()).data;
-
-  // Send token to your backend
-  if (token) {
-    try {
-      await fetch(`${process.env.EXPO_PUBLIC_BASE_URL}/api/save-token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-    } catch (error) {
-      console.error("Failed to save push token:", error);
-    }
-  }
-
-  return token;
 }
