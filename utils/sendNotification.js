@@ -30,8 +30,44 @@
 //   }
 // }
 // services/pushNotifications.js
+
+// export async function sendNotification(title, body, pushToken) {
+//   if (!pushToken) return;
+
+//   const message = {
+//     to: pushToken,
+//     sound: "default",
+//     title,
+//     body,
+//   };
+
+//   try {
+//     const response = await fetch("https://exp.host/--/api/v2/push/send", {
+//       method: "POST",
+//       headers: {
+//         Accept: "application/json",
+//         "Accept-Encoding": "gzip, deflate",
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(message),
+//     });
+
+//     const data = await response.json();
+//     console.log("Push sent:", data);
+//   } catch (err) {
+//     console.error("Push failed:", err);
+//   }
+// }
+
+import { Expo } from "expo-server-sdk";
+
+const expo = new Expo();
+
 export async function sendNotification(title, body, pushToken) {
-  if (!pushToken) return;
+  if (!Expo.isExpoPushToken(pushToken)) {
+    console.log("Invalid Expo push token:", pushToken);
+    return;
+  }
 
   const message = {
     to: pushToken,
